@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pruebas de NativeEncrypt.js</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .test-section {
+      margin-bottom: 40px;
+    }
+    .test-case {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .test-case.pass {
+      border-color: green;
+      background-color: #e0ffe0;
+    }
+    .test-case.fail {
+      border-color: red;
+      background-color: #ffe0e0;
+    }
+    .test-case h3 {
+      margin: 0 0 10px 0;
+    }
+    .test-case p {
+      margin: 5px 0;
+      word-break: break-all;
+    }
+    #run-tests {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .key-display {
+      white-space: pre-wrap;
+      background-color: #f9f9f9;
+      padding: 10px;
+      border: 1px dashed #ccc;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pruebas de NativeEncrypt.js</h1>
+  <button id="run-tests">Ejecutar Pruebas</button>
+  <div id="test-results"></div>
+
+  <script type="module">
+    import * as NativeEncrypt from './node_modules/nativeencrypt/NativeEncrypt.js';
+
+    // Función para crear un elemento de prueba
+    const createTestElement = (title, details, outputs, passed = true, error = null) => {
+      const testCase = document.createElement('div');
+      testCase.classList.add('test-case');
+      testCase.classList.add(passed ? 'pass' : 'fail');
+
+      const heading = document.createElement('h3');
+      heading.textContent = title;
+      testCase.appendChild(heading);
+
+      details.forEach(detail => {
+        const p = document.createElement('p');
+        p.textContent = detail;
+        testCase.appendChild(p);
+      });
+
+      outputs.forEach(output => {
+        const p = document.createElement('p');
+        p.innerHTML = `<strong>${output.label}:</strong> ${output.value}`;
+        testCase.appendChild(p);
+      });
+
+      if (error) {
+        const errorP = document.createElement('p');
+        errorP.style.color = 'red';
+        errorP.textContent = `Error: ${error}`;
+        testCase.appendChild(errorP);
+      }
+
+      return testCase;
+    };
+
+    // Función para ejecutar todas las pruebas
+    const runTests = async () => {
+      const resultsContainer = document.getElementById('test-results');
+      resultsContainer.innerHTML = ''; // Limpiar resultados anteriores
+
+      // Lista de pruebas
+      const tests = [];
+
+      // 1. Pruebas de Conversión
+
+      // Test de toBase64 y fromBase64
+      tests.push({
+        title: 'Conversión Base64',
+        run: async () => {
+          const original = 'Hola Mundo';
+          const base64 = await NativeEncrypt.toBase64(original);
+          const decoded = await NativeEncrypt.fromBase64(base64);
+          return {
+            details: ['Texto original: "Hola Mundo"'],
+            outputs: [
+              { label: 'Base64', value: base64 },
+              { label: 'Decodificado desde Base64', value: decoded }
+            ]
+          };
+        }
+      });
+
+      // Test de toUrl y fromUrl
+      tests.push({
+        title: 'Conversión URL',
+        run: async () => {
+          const original = 'https://www.ejemplo.com/?q=prueba&lang=es';
+          const urlEncoded = await NativeEncrypt.toUrl(original);
+          const urlDecoded = await NativeEncrypt.fromUrl(urlEncoded);
+          return {
+            details: ['Texto original: "https://www.ejemplo.com/?q=prueba&lang=es"'],
+            outputs: [
+              { label: 'URL Codificada', value: urlEncoded },
+              { label: 'URL Decodificada', value: urlDecoded }
+            ]
+          };
+        }
+      });
+
+      // Test de toHex y fromHex
+      tests.push({
+        title: 'Conversión Hexadecimal',
+        run: async () => {
+          const original = 'Hola Mundo';
+          const hex = await NativeEncrypt.toHex(original);
+          const decoded = await NativeEncrypt.fromHex(hex);
+          return {
+            details: ['Texto original: "Hola Mundo"'],
+            outputs: [
+              { label: 'Hexadecimal', value: hex },
+              { label: 'Decodificado desde Hexadecimal', value: decoded }
+            ]
+          };
+        }
+      });
+
+      // Test de base64ToHexConversion y hexToBase64Conversion
+      tests.push({
+        title: 'Conversión Base64 a Hex y viceversa',
+        run: async () => {
+          const original = 'Hola Mundo';
+          const base64 = await NativeEncrypt.toBase64(original);
+          const hex = await NativeEncrypt.base64ToHexConversion(base64);
+          const base64Converted = await NativeEncrypt.hexToBase64Conversion(hex);
+          return {
+            details: ['Texto original: "Hola Mundo"'],
+            outputs: [
+              { label: 'Base64', value: base64 },
+              { label: 'Hexadecimal (Base64 a Hex)', value: hex },
+              { label: 'Base64 (Hex a Base64)', value: base64Converted }
+            ]
+          };
+        }
+      });
+
+      // Test de base64ToUrlConversion y urlToBase64Conversion
+      tests.push({
+        title: 'Conversión Base64 a URL y viceversa',
+        run: async () => {
+          const original = 'Hola Mundo';
+          const base64 = await NativeEncrypt.toBase64(original);
+          const url = await NativeEncrypt.base64ToUrlConversion(base64);
+          const base64Converted = await NativeEncrypt.urlToBase64Conversion(url);
+          return {
+            details: ['Texto original: "Hola Mundo"'],
+            outputs: [
+              { label: 'Base64', value: base64 },
+              { label: 'URL (Base64 a URL)', value: url },
+              { label: 'Base64 (URL a Base64)', value: base64Converted }
+            ]
+          };
+        }
+      });
+
+      // Test de hexToUrlConversion y urlToHexConversion
+      tests.push({
+        title: 'Conversión Hex a URL y viceversa',
+        run: async () => {
+          const original = 'Hola Mundo';
+          const hex = await NativeEncrypt.toHex(original);
+          const url = await NativeEncrypt.hexToUrlConversion(hex);
+          const hexConverted = await NativeEncrypt.urlToHexConversion(url);
+          return {
+            details: ['Texto original: "Hola Mundo"'],
+            outputs: [
+              { label: 'Hexadecimal', value: hex },
+              { label: 'URL (Hex a URL)', value: url },
+              { label: 'Hexadecimal (URL a Hex)', value: hexConverted }
+            ]
+          };
+        }
+      });
+
+      // 2. Pruebas de Ofuscación
+
+      // Test de caesarEncrypt y caesarDecrypt
+      tests.push({
+        title: 'Cifrado y Descifrado Cifra de César',
+        run: async () => {
+          const original = 'Hola Mundo';
+          const shift = 3;
+          const encrypted = await NativeEncrypt.caesarEncrypt(original, shift);
+          const decrypted = await NativeEncrypt.caesarDecrypt(encrypted, shift);
+          return {
+            details: [`Texto original: "${original}"`, `Desplazamiento: ${shift}`],
+            outputs: [
+              { label: 'Texto Cifrado', value: encrypted },
+              { label: 'Texto Descifrado', value: decrypted }
+            ]
+          };
+        }
+      });
+
+      // Test de dictionaryEncrypt y dictionaryDecrypt
+      tests.push({
+        title: 'Cifrado y Descifrado con Diccionario',
+        run: async () => {
+          const original = 'Hola Mundo';
+          const encrypted = await NativeEncrypt.dictionaryEncrypt({ text: original });
+          const decrypted = await NativeEncrypt.dictionaryDecrypt({ text: encrypted });
+          return {
+            details: ['Texto original: "Hola Mundo"'],
+            outputs: [
+              { label: 'Texto Cifrado con Diccionario', value: encrypted },
+              { label: 'Texto Descifrado con Diccionario', value: decrypted }
+            ]
+          };
+        }
+      });
+
+      // 3. Pruebas de Encriptación y Desencriptación con Crypto API
+
+      // Funciones para probar encriptación y desencriptación con diferentes algoritmos
+      const cryptoAlgorithms = ["AES-GCM", "AES-CBC", "AES-CTR", "RSA-OAEP"];
+
+      cryptoAlgorithms.forEach(algorithm => {
+        tests.push({
+          title: `Encriptación y Descifrado con ${algorithm}`,
+          run: async () => {
+            const original = 'Hola Mundo';
+            const key = await NativeEncrypt.generateKey(algorithm);
+            const encrypted = await NativeEncrypt.encrypt(original, algorithm, key);
+            const decrypted = await NativeEncrypt.decrypt(encrypted, algorithm, key);
+            return {
+              details: [`Texto original: "${original}"`, `Algoritmo: ${algorithm}`],
+              outputs: [
+                { label: 'Datos Cifrados', value: JSON.stringify(encrypted.data) },
+                { label: 'IV / Counter', value: encrypted.iv ? JSON.stringify(encrypted.iv) : 'N/A' },
+                { label: 'Algoritmo', value: encrypted.algorithm },
+                { label: 'Texto Descifrado', value: decrypted }
+              ]
+            };
+          }
+        });
+      });
+
+      // Test de generación, exportación e importación de claves AES-GCM
+      tests.push({
+        title: 'Generación, Exportación e Importación de Claves AES-GCM',
+        run: async () => {
+          try {
+            // Generar clave
+            const key = await NativeEncrypt.generateKey("AES-GCM");
+
+            // Exportar clave
+            const exportedKey = await NativeEncrypt.exportKey(key);
+
+            // Importar clave
+            const importedKey = await NativeEncrypt.importKey(exportedKey, "AES-GCM");
+
+            // Mostrar claves exportadas e importadas
+            return {
+              details: ['Generación de clave AES-GCM', 'Exportación e importación de la clave'],
+              outputs: [
+                { label: 'Clave Exportada (Array)', value: JSON.stringify(exportedKey) },
+                { label: 'Clave Importada (Array)', value: JSON.stringify(Array.from(new Uint8Array(await NativeEncrypt.exportKey(importedKey)))) }
+              ]
+            };
+          } catch (error) {
+            return {
+              details: ['Generación, exportación e importación de claves AES-GCM'],
+              outputs: [],
+              passed: false,
+              error: error.message
+            };
+          }
+        }
+      });
+
+      // 4. Pruebas de RSA-OAEP
+
+      // Test de encriptación y desencriptación RSA-OAEP
+      /*tests.push({
+        title: 'Encriptación y Descifrado con RSA-OAEP',
+        run: async () => {
+          const original = 'Hola Mundo';
+
+          // Generar par de claves RSA-OAEP
+          const keyPair = await NativeEncrypt.generateKey("RSA-OAEP");
+
+          // Encriptar el texto con la clave pública
+          const encrypted = await NativeEncrypt.encrypt(original, "RSA-OAEP", keyPair);
+
+          // Descifrar el texto con la clave privada
+          const decrypted = await NativeEncrypt.decrypt(encrypted, "RSA-OAEP", keyPair);
+
+          return {
+            details: ['Texto original: "Hola Mundo"', 'Algoritmo: RSA-OAEP'],
+            outputs: [
+              { label: 'Datos Cifrados', value: JSON.stringify(encrypted.data) },
+              { label: 'Texto Descifrado', value: decrypted }
+            ]
+          };
+        }
+      });*/
+
+      // Test de exportación e importación de claves RSA-OAEP
+      tests.push({
+        title: 'Exportación e Importación de Claves RSA-OAEP',
+        run: async () => {
+          try {
+            // Generar par de claves RSA-OAEP
+            const keyPair = await NativeEncrypt.generateKey("RSA-OAEP");
+            // Exportar claves
+            const exportedKeys = await NativeEncrypt.exportKey(keyPair);
+            // Importar claves
+            const importedKeys = await NativeEncrypt.importKey(exportedKeys, "RSA-OAEP");
+            // Verificar que las claves importadas funcionan correctamente
+            const original = 'Hola Mundo';
+            const encrypted = await NativeEncrypt.encrypt(original, "RSA-OAEP", importedKeys);
+            const decrypted = await NativeEncrypt.decrypt(encrypted, "RSA-OAEP", importedKeys);
+
+            return {
+              details: ['Generación de claves RSA-OAEP', 'Exportación e importación de las claves'],
+              outputs: [
+                { label: 'Clave Pública Exportada (Array)', value: JSON.stringify(exportedKeys.publicKey) },
+                { label: 'Clave Privada Exportada (Array)', value: JSON.stringify(exportedKeys.privateKey) },
+                { label: 'Clave Pública Importada', value: 'Importada correctamente' },
+                { label: 'Clave Privada Importada', value: 'Importada correctamente' },
+                { label: 'Texto Cifrado', value: JSON.stringify(encrypted.data) },
+                { label: 'Texto Descifrado', value: decrypted }
+              ]
+            };
+          } catch (error) {
+            return {
+              details: ['Exportación e importación de claves RSA-OAEP'],
+              outputs: [],
+              passed: false,
+              error: error.message
+            };
+          }
+        }
+      });
+
+      // Ejecutar cada prueba y mostrar resultados
+      for (const test of tests) {
+        try {
+          const result = await test.run();
+          const testElement = createTestElement(
+            test.title,
+            result.details,
+            result.outputs,
+            result.passed !== false,
+            result.error || null
+          );
+          resultsContainer.appendChild(testElement);
+        } catch (error) {
+          const testElement = createTestElement(
+            test.title,
+            ['Descripción no disponible'],
+            [],
+            false,
+            error.message
+          );
+          resultsContainer.appendChild(testElement);
+        }
+      }
+    };
+
+    // Asignar evento al botón de pruebas
+    document.getElementById('run-tests').addEventListener('click', runTests);
+  </script>
+</body>
+</html>
