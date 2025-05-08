@@ -223,6 +223,41 @@ export const generateKey = async (algorithm = "AES-GCM") => {
   }
 };
 
+/**
+ * Genera una clave AES-GCM de forma determinista a partir de una semilla
+ * y un algoritmo hash especificado. La longitud de la clave AES-GCM
+ * se define en la importación.
+ * @param {string} seed - La semilla utilizada para generar la clave.
+ * @param {string} hashAlgorithm - El algoritmo hash a utilizar (ej: 'SHA-1', 'SHA-256', 'SHA-512').
+ * @param {number} keyLength - La longitud deseada para la clave AES-GCM en bits (ej: 128, 192, 256).
+ * @returns {Promise<CryptoKey>} Una promesa que resuelve a la clave AES-GCM.
+ */
+export const generateAesGcmKey = async (seed, algorithm = 'SHA-256', keyLength = 256) => {
+  try {
+    // Codifica la semilla en un array de bytes (Uint8Array).
+    const encoder = new TextEncoder();
+    const rawSeed = encoder.encode(seed);
+
+    // Aplica el algoritmo hash especificado a la semilla.
+    const hashBuffer = await crypto.subtle.digest(algorithm, rawSeed);
+    const keyBytes = new Uint8Array(hashBuffer);
+
+    // Calcula la longitud en bytes basada en la longitud en bits deseada.
+    const keyLengthBytes = keyLength / 8;
+
+    // Importa los primeros 'keyLengthBytes' del hash como una clave AES-GCM.
+    return await crypto.subtle.importKey(
+      "raw",
+      keyBytes.slice(0, keyLengthBytes),
+      "AES-GCM",
+      true, // La clave puede ser usada para encriptar y desencriptar.
+      ["encrypt", "decrypt"]
+    );
+  } catch (error) {
+    console.error(`Error al generar la clave AES-GCM desde la semilla con ${algorithm} y longitud ${keyLength}:`, error);
+    throw new Error(`generateAesGcmKeyFromSeed Error: ${error.message}`);
+  }
+};
 // Función para exportar una clave a ArrayBuffer
 /* export const exportKey = async (key) => {
   if (key.algorithm && key.algorithm.name === "RSA-OAEP") {
