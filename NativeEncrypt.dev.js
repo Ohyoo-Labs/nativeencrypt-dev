@@ -3,13 +3,13 @@
 /*
  * NativeEncrypt.js es un módulo que se utiliza para definir todas las utilidades de cifrado nativas.
  */
-import * as helpers from "./helpers.js";
+import * as helpers from "./@NativeEncrypt/helpers.js";
 
 // Función para obtener el diccionario
 export const getDictionary = async function (urlDictionary = "") {
   try {
     if (!urlDictionary) {
-      const module = await import("./dictionary.js");
+      const module = await import("./@NativeEncrypt/dictionary.js");
       return module.dictionary;
     } else {
       const response = await fetch(urlDictionary);
