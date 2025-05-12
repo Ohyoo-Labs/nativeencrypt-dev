@@ -383,7 +383,7 @@ const generateRSAKeyPair = async (sha = "SHA-256", length = 2048) => {
 };
 
 // Función para cifrar texto con el algoritmo especificado
-export const encrypt = async (text, algorithm = "AES-GCM", key = null, options = {}) => {
+export const encrypt = async ({text = null, algorithm = "AES-GCM", key = null, options = null} = {}) => {
   try {
     if (!key) {
       key = await generateKey(algorithm);
@@ -443,7 +443,7 @@ export const encrypt = async (text, algorithm = "AES-GCM", key = null, options =
 };
 
 // Función para descifrar texto con el algoritmo especificado
-export const decrypt = async (encrypted, algorithm = "AES-GCM", key = null, options = {}) => {
+export const decrypt = async ({encrypted = null, algorithm = "AES-GCM", key = null, options = null } = {}) => {
   try {
     if (!key && encrypted.key) {
       key = await importKey(encrypted.key, algorithm, options.sha);
