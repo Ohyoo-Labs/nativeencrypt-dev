@@ -446,7 +446,7 @@ export const encrypt = async ({text = null, algorithm = "AES-GCM", key = null, o
 export const decrypt = async ({encrypted = null, algorithm = "AES-GCM", key = null, options = null } = {}) => {
   try {
     if (!key && encrypted.key) {
-      key = await importKey(encrypted.key, algorithm, options.sha);
+      key = await importKey(encrypted.key, algorithm, options?.sha ?? "SHA-256");
     } else if (algorithm === "RSA-OAEP" && !key) {
       throw new Error("Clave requerida para descifrar RSA-OAEP.");
     } else if (!key) {
