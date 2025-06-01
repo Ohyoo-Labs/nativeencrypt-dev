@@ -97,6 +97,35 @@ export const urlToHexConversion = async function (text = "") {
   return helpers.urlToHex(text);
 };
 
+// Generar un token aleatorio alfanumérico como salt de longitud especificada
+export const generateSalt = function (length = 16) {
+  if (length <= 0) return "";
+  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < length; i++) {
+    token += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  return token;
+};
+/**
+ * Elimina un "salt" de longitud fija del final de una cadena.
+ *
+ * @param {string} saltedCsrfToken La cadena completa que contiene el CSRF token y el salt.
+ * @param {number} saltLength La longitud del salt que se añadió.
+ * @returns {string} El CSRF token original sin el salt, o una cadena vacía si la longitud es inválida.
+ */
+export const removeSalt = function (saltedCsrfToken, saltLength = 16) {
+  if (typeof saltedCsrfToken !== 'string' || saltedCsrfToken.length < saltLength) {
+    // Si la cadena no es una cadena o es más corta que la longitud del salt,
+    // significa que no puede contener el salt o no es válida.
+    /* console.warn("removeSalt: La cadena no es válida o es más corta que la longitud del salt."); */
+    return "";
+  }
+  // Utiliza slice para obtener la subcadena desde el principio hasta
+  // la longitud total de la cadena menos la longitud del salt.
+  return saltedCsrfToken.slice(0, saltedCsrfToken.length - saltLength);
+};
+
 // Encriptado Cifra de César
 export const caesarEncrypt = async function (text = "", shift = 3) {
   if (!text) return text;
